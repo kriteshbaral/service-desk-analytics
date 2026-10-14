@@ -10,7 +10,9 @@ The project answers the questions an IT service manager asks every month:
 - When is demand highest, and are we staffed for it?
 - What should we change first?
 
-**Live dashboard:** open `dashboard/index.html` in a browser (no server needed).
+**Live dashboard:** https://kriteshbaral.github.io/service-desk-analytics/
+
+Or open `dashboard/index.html` locally in any browser (no server needed).
 
 ![Dashboard screenshot](docs/dashboard.png)
 
