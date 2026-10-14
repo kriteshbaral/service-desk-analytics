@@ -1,0 +1,9 @@
+assigned_group,assigned_agent,tickets,avg_resolution_hours,resolution_sla_pct,avg_csat
+Service Desk (L1),A. Nguyen,703,4.3,97.7,4.05
+Desktop Support (L2),E. Murray,696,23.5,72.9,3.85
+Desktop Support (L2),F. Santos,677,25.1,70.9,3.83
+Service Desk (L1),D. Wilson,674,3.9,99.0,4.21
+Service Desk (L1),B. Okafor,654,4.0,98.5,4.21
+Service Desk (L1),C. Patel,607,4.0,98.0,4.26
+Network Team,G. Hughes,575,6.9,96.5,4.15
+Systems Team,H. Kaur,166,47.4,33.3,3.13

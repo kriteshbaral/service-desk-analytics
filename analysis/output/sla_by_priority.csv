@@ -1,0 +1,5 @@
+priority,tickets,response_target_min,resolution_target_hours,response_sla_pct,resolution_sla_pct
+P1 - Critical,111,15,4,86.5,71.2
+P2 - High,526,30,8,83.1,79.1
+P3 - Medium,2624,240,24,95.7,85.3
+P4 - Low,1491,480,72,96.7,97.9
