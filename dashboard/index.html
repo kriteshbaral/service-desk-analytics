@@ -1,0 +1,353 @@
+<title>Harbourline Service Desk Review</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: an operations review read top-down — headline numbers, then trends, then where the problems are, then what to do. */
+:root {
+  --bg: #f6f7f9;
+  --panel: #ffffff;
+  --ink: #14181f;
+  --ink-2: #4b5361;
+  --ink-3: #7a8291;
+  --rule: #e2e5ea;
+  --grid: #eceef2;
+  --accent: #2a78d6;
+  --accent-soft: #cde2fb;
+  --good: #0a8a0a;
+  --warn: #b97800;
+  --crit: #d03b3b;
+  --good-bg: #e3f4e3;
+  --warn-bg: #fdf0d6;
+  --crit-bg: #fbe4e4;
+  --font-body: "Public Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-data: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #121418; --panel: #1b1e24; --ink: #eef0f3; --ink-2: #b4bac5; --ink-3: #8a919d;
+    --rule: #2c3038; --grid: #262a31; --accent: #3987e5; --accent-soft: #1c3a5e;
+    --good: #2fbf2f; --warn: #f0a92a; --crit: #ee6767;
+    --good-bg: #16301a; --warn-bg: #352a12; --crit-bg: #3a1c1c;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #121418; --panel: #1b1e24; --ink: #eef0f3; --ink-2: #b4bac5; --ink-3: #8a919d;
+  --rule: #2c3038; --grid: #262a31; --accent: #3987e5; --accent-soft: #1c3a5e;
+  --good: #2fbf2f; --warn: #f0a92a; --crit: #ee6767;
+  --good-bg: #16301a; --warn-bg: #352a12; --crit-bg: #3a1c1c;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font: 15px/1.5 var(--font-body);
+}
+.wrap { max-width: 1120px; margin: 0 auto; padding-inline: 16px; padding-block: 28px 56px; display: grid; gap: 20px; }
+
+header { display: grid; gap: 6px; }
+.eyebrow { font: 500 12px/1 var(--font-data); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); }
+h1 { margin: 0; font-size: clamp(24px, 3.4vw, 34px); line-height: 1.15; font-weight: 700; text-wrap: balance; }
+.lede { margin: 0; color: var(--ink-2); max-width: 68ch; }
+
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; }
+.kpi { background: var(--panel); border: 1px solid var(--rule); border-radius: 8px; padding: 14px 16px; display: grid; gap: 4px; }
+.kpi .label { font-size: 13px; color: var(--ink-2); }
+.kpi .value { font: 500 28px/1.1 var(--font-data); font-variant-numeric: tabular-nums; }
+.kpi .note { font-size: 12.5px; color: var(--ink-3); }
+
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 480px), 1fr)); gap: 20px; }
+section.panel { background: var(--panel); border: 1px solid var(--rule); border-radius: 8px; padding: 18px; display: grid; gap: 12px; min-width: 0; align-content: start; }
+h2 { margin: 0; font-size: 17px; font-weight: 600; }
+.sub { margin: 0; font-size: 13.5px; color: var(--ink-2); }
+.chart svg { width: 100%; height: auto; display: block; overflow: visible; }
+.chart text { fill: var(--ink-3); font: 11px var(--font-data); }
+.chart .val { fill: var(--ink-2); }
+.chart .gridline { stroke: var(--grid); stroke-width: 1; }
+.chart .target { stroke: var(--ink-2); stroke-width: 1.5; stroke-dasharray: 4 3; }
+.chart .hit { fill: transparent; cursor: default; }
+
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+th, td { white-space: nowrap; }
+th { text-align: left; font-weight: 600; color: var(--ink-2); font-size: 12px; text-transform: uppercase; letter-spacing: .04em; padding: 6px 8px; border-bottom: 1px solid var(--rule); white-space: nowrap; }
+td { padding: 8px; border-bottom: 1px solid var(--grid); vertical-align: middle; }
+td.num, th.num { text-align: right; font-family: var(--font-data); font-variant-numeric: tabular-nums; }
+.sharebar { display: flex; align-items: center; gap: 8px; min-width: 120px; }
+.sharebar span.track { flex: 1; height: 8px; background: var(--grid); border-radius: 4px; overflow: hidden; }
+.sharebar span.fill { display: block; height: 100%; background: var(--accent); border-radius: 4px; }
+
+.pill { display: inline-flex; align-items: center; gap: 5px; padding: 2px 8px; border-radius: 999px; font: 500 12px/1.4 var(--font-data); white-space: nowrap; }
+.pill::before { font-family: var(--font-body); font-weight: 700; }
+.pill.good { background: var(--good-bg); color: var(--good); }
+.pill.good::before { content: "✓"; }
+.pill.warn { background: var(--warn-bg); color: var(--warn); }
+.pill.warn::before { content: "!"; }
+.pill.crit { background: var(--crit-bg); color: var(--crit); }
+.pill.crit::before { content: "✕"; }
+
+.legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 12.5px; color: var(--ink-2); }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
+
+.findings { display: grid; gap: 14px; }
+.finding { display: grid; grid-template-columns: auto 1fr; gap: 4px 14px; padding-top: 14px; border-top: 1px solid var(--rule); }
+.finding:first-of-type { border-top: 0; padding-top: 0; }
+.finding .metric { grid-row: span 2; font: 500 22px/1.1 var(--font-data); color: var(--accent); min-width: 84px; font-variant-numeric: tabular-nums; }
+.finding h3 { margin: 0; font-size: 15px; font-weight: 600; }
+.finding p { margin: 0; color: var(--ink-2); font-size: 14px; max-width: 72ch; }
+.finding p b { color: var(--ink); font-weight: 600; }
+
+footer { font-size: 12.5px; color: var(--ink-3); }
+footer code { font-family: var(--font-data); }
+
+#tip { position: fixed; pointer-events: none; z-index: 10; background: var(--ink); color: var(--bg); font: 12px/1.4 var(--font-data); padding: 6px 9px; border-radius: 6px; max-width: 240px; }
+
+@media (max-width: 520px) { .finding { grid-template-columns: 1fr; } .finding .metric { grid-row: auto; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">IT Service Desk · Annual performance review</div>
+    <h1>Harbourline Regional Services: 12 months of service desk tickets</h1>
+    <p class="lede" id="lede">Loading…</p>
+  </header>
+
+  <div class="kpis" id="kpis"></div>
+
+  <div class="grid2">
+    <section class="panel">
+      <h2>Tickets raised per month</h2>
+      <p class="sub">February spikes with new starters and the start of the half-year.</p>
+      <div class="chart" id="monthly"></div>
+    </section>
+    <section class="panel">
+      <h2>Resolution SLA met, by month</h2>
+      <p class="sub">Share of tickets resolved within their priority's target. Dashed line is the 90% goal.</p>
+      <div class="chart" id="monthlySla"></div>
+    </section>
+  </div>
+
+  <section class="panel">
+    <h2>What the workload is made of</h2>
+    <p class="sub">Ticket categories ranked by volume, with resolution time, SLA result and re-open rate.</p>
+    <div class="table-wrap"><table id="categories"></table></div>
+  </section>
+
+  <div class="grid2">
+    <section class="panel">
+      <h2>Hardware repairs: SLA met by site</h2>
+      <p class="sub">Remote sites wait for on-site visits. Dashed line is the 90% goal.</p>
+      <div class="chart" id="hwSites"></div>
+      <div class="legend"><span><i style="background:var(--good)"></i>≥ 90% met</span><span><i style="background:var(--warn)"></i>60–89%</span><span><i style="background:var(--crit)"></i>&lt; 60%</span></div>
+    </section>
+    <section class="panel">
+      <h2>Average tickets per day, by weekday</h2>
+      <p class="sub" id="weekdaySub"></p>
+      <div class="chart" id="weekday"></div>
+    </section>
+  </div>
+
+  <div class="grid2">
+    <section class="panel">
+      <h2>SLA by priority</h2>
+      <p class="sub">Targets: first response and full resolution.</p>
+      <div class="table-wrap"><table id="priority"></table></div>
+    </section>
+    <section class="panel">
+      <h2>Where fixes don't stick</h2>
+      <p class="sub">Highest re-open rates by category and site (30+ tickets).</p>
+      <div class="table-wrap"><table id="repeat"></table></div>
+    </section>
+  </div>
+
+  <section class="panel">
+    <h2>Findings and recommendations</h2>
+    <div class="findings" id="findings"></div>
+  </section>
+
+  <footer id="footer"></footer>
+</div>
+<div id="tip" hidden></div>
+
+<script src="data.js"></script>
+<script>
+(function () {
+  const M = window.METRICS;
+  const $ = (id) => document.getElementById(id);
+  const fmt = (n, d = 0) => Number(n).toLocaleString("en-AU", { minimumFractionDigits: d, maximumFractionDigits: d });
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const status = (pct) => (pct >= 90 ? "good" : pct >= 60 ? "warn" : "crit");
+  const pill = (pct) => `<span class="pill ${status(pct)}">${fmt(pct, 1)}%</span>`;
+  const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const monthLabel = (m) => MONTHS[Number(m.slice(5, 7)) - 1];
+
+  if (!M) { $("lede").textContent = "Data file not found. Run analysis/run_analysis.py first."; return; }
+  const k = M.kpis[0];
+
+  $("lede").textContent = `${fmt(k.total_tickets)} tickets from ${M._meta.period}, across four sites in the Top End and Central Australia. The organisation and its data are fictional; the analysis method is real.`;
+
+  // ---- KPI tiles
+  const tiles = [
+    ["Tickets raised", fmt(k.total_tickets), `${k.open_tickets} still open`],
+    ["Resolution SLA met", fmt(k.resolution_sla_pct, 1) + "%", "Goal: 90%"],
+    ["First response SLA met", fmt(k.response_sla_pct, 1) + "%", "Goal: 95%"],
+    ["Average resolution time", fmt(k.avg_resolution_hours, 1) + " h", "All closed tickets"],
+    ["Customer satisfaction", fmt(k.avg_csat, 2) + " / 5", `Re-open rate ${fmt(k.reopen_rate_pct, 1)}%`],
+  ];
+  $("kpis").innerHTML = tiles.map(([l, v, n]) => `<div class="kpi"><div class="label">${l}</div><div class="value">${v}</div><div class="note">${n}</div></div>`).join("");
+
+  // ---- Tooltip
+  const tip = $("tip");
+  document.addEventListener("mousemove", (e) => {
+    const t = e.target.closest("[data-tip]");
+    if (!t) { tip.hidden = true; return; }
+    tip.textContent = t.getAttribute("data-tip");
+    tip.hidden = false;
+    const x = Math.min(e.clientX + 14, window.innerWidth - tip.offsetWidth - 8);
+    tip.style.left = x + "px";
+    tip.style.top = e.clientY + 14 + "px";
+  });
+
+  // ---- Vertical bar chart (single series, one scale)
+  function vbars(el, rows, { value, label, max, color, tipText, valueText, highlight, target, ticks = 4 }) {
+    const W = 520, H = 230, L = 36, R = 8, T = 18, B = 26;
+    const pw = W - L - R, ph = H - T - B;
+    const step = pw / rows.length, bw = Math.min(34, step * 0.62);
+    const y = (v) => T + ph - (v / max) * ph;
+    let s = `<svg viewBox="0 0 ${W} ${H}" role="img">`;
+    for (let i = 0; i <= ticks; i++) {
+      const v = (max / ticks) * i;
+      s += `<line class="gridline" x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}"/>`;
+      s += `<text x="${L - 6}" y="${y(v) + 3.5}" text-anchor="end">${fmt(v)}${target ? "%" : ""}</text>`;
+    }
+    if (target) s += `<line class="target" x1="${L}" x2="${W - R}" y1="${y(target)}" y2="${y(target)}"/>`;
+    rows.forEach((r, i) => {
+      const v = value(r), cx = L + step * i + step / 2, top = y(v), h = T + ph - top;
+      const fill = color ? color(r) : highlight && highlight(r) ? "var(--accent)" : "var(--accent-soft)";
+      const rr = Math.min(4, h / 2);
+      s += `<path d="M${cx - bw / 2},${T + ph} V${top + rr} q0,-${rr} ${rr},-${rr} H${cx + bw / 2 - rr} q${rr},0 ${rr},${rr} V${T + ph} Z" fill="${fill}"/>`;
+      if (valueText) s += `<text class="val" x="${cx}" y="${top - 5}" text-anchor="middle">${valueText(r)}</text>`;
+      s += `<text x="${cx}" y="${H - 8}" text-anchor="middle">${esc(label(r))}</text>`;
+      s += `<rect class="hit" x="${cx - step / 2}" y="${T}" width="${step}" height="${ph}" data-tip="${esc(tipText(r))}"/>`;
+    });
+    el.innerHTML = s + "</svg>";
+  }
+
+  // ---- Line chart (single series) for SLA %
+  function line(el, rows, { value, label, min, max, target, tipText }) {
+    const W = 520, H = 230, L = 36, R = 12, T = 18, B = 26;
+    const pw = W - L - R, ph = H - T - B;
+    const x = (i) => L + (pw / (rows.length - 1)) * i;
+    const y = (v) => T + ph - ((v - min) / (max - min)) * ph;
+    let s = `<svg viewBox="0 0 ${W} ${H}" role="img">`;
+    for (let v = min; v <= max; v += 5) {
+      s += `<line class="gridline" x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}"/><text x="${L - 6}" y="${y(v) + 3.5}" text-anchor="end">${v}%</text>`;
+    }
+    s += `<line class="target" x1="${L}" x2="${W - R}" y1="${y(target)}" y2="${y(target)}"/>`;
+    const pts = rows.map((r, i) => `${x(i)},${y(value(r))}`).join(" ");
+    s += `<polygon points="${x(0)},${T + ph} ${pts} ${x(rows.length - 1)},${T + ph}" fill="var(--accent)" opacity=".08"/>`;
+    s += `<polyline points="${pts}" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round"/>`;
+    rows.forEach((r, i) => {
+      const last = i === rows.length - 1;
+      s += `<circle cx="${x(i)}" cy="${y(value(r))}" r="${last ? 4.5 : 3}" fill="var(--accent)" stroke="var(--panel)" stroke-width="2"/>`;
+      if (last) s += `<text class="val" x="${x(i) - 6}" y="${y(value(r)) - 9}" text-anchor="end">${fmt(value(r), 1)}%</text>`;
+      s += `<text x="${x(i)}" y="${H - 8}" text-anchor="middle">${esc(label(r))}</text>`;
+      s += `<rect class="hit" x="${x(i) - pw / rows.length / 2}" y="${T}" width="${pw / rows.length}" height="${ph}" data-tip="${esc(tipText(r))}"/>`;
+    });
+    el.innerHTML = s + "</svg>";
+  }
+
+  // ---- Horizontal bars for site comparison
+  function hbars(el, rows, { value, label, tipText, target }) {
+    const W = 520, rowH = 38, L = 104, R = 52, T = 6;
+    const H = T + rows.length * rowH + 20, pw = W - L - R;
+    const x = (v) => L + (v / 100) * pw;
+    let s = `<svg viewBox="0 0 ${W} ${H}" role="img">`;
+    [0, 25, 50, 75, 100].forEach((v) => { s += `<line class="gridline" x1="${x(v)}" x2="${x(v)}" y1="${T}" y2="${H - 18}"/><text x="${x(v)}" y="${H - 4}" text-anchor="middle">${v}%</text>`; });
+    rows.forEach((r, i) => {
+      const v = value(r), yy = T + i * rowH + 9, bh = 20, w = x(v) - L, rr = Math.min(4, w / 2);
+      s += `<text class="val" x="${L - 10}" y="${yy + 14}" text-anchor="end" style="font-family:var(--font-body);font-size:12.5px">${esc(label(r))}</text>`;
+      s += `<path d="M${L},${yy} H${L + w - rr} q${rr},0 ${rr},${rr} V${yy + bh - rr} q0,${rr} -${rr},${rr} H${L} Z" fill="var(--${status(v)})"/>`;
+      s += `<text class="val" x="${x(v) + 6}" y="${yy + 14}">${fmt(v, 1)}%</text>`;
+      s += `<rect class="hit" x="${L}" y="${yy - 6}" width="${pw}" height="${rowH}" data-tip="${esc(tipText(r))}"/>`;
+    });
+    s += `<line class="target" x1="${x(target)}" x2="${x(target)}" y1="${T}" y2="${H - 18}"/>`;
+    el.innerHTML = s + "</svg>";
+  }
+
+  // Monthly volume
+  const mv = M.monthly_volume;
+  const peak = mv.reduce((a, b) => (b.tickets > a.tickets ? b : a));
+  vbars($("monthly"), mv, {
+    value: (r) => r.tickets, label: (r) => monthLabel(r.month), max: 500,
+    highlight: (r) => r === peak, valueText: (r) => (r === peak ? fmt(r.tickets) : ""),
+    tipText: (r) => `${monthLabel(r.month)} ${r.month.slice(0, 4)}: ${fmt(r.tickets)} tickets`,
+  });
+  line($("monthlySla"), mv, {
+    value: (r) => r.resolution_sla_pct, label: (r) => monthLabel(r.month), min: 80, max: 95, target: 90,
+    tipText: (r) => `${monthLabel(r.month)} ${r.month.slice(0, 4)}: ${fmt(r.resolution_sla_pct, 1)}% resolved in SLA, ${fmt(r.response_sla_pct, 1)}% responded in SLA`,
+  });
+
+  // Categories table
+  const maxShare = Math.max(...M.by_category.map((r) => r.share_pct));
+  $("categories").innerHTML =
+    `<thead><tr><th>Category</th><th>Share of tickets</th><th class="num">Tickets</th><th class="num">Avg resolution</th><th class="num">SLA met</th><th class="num">Re-opened</th></tr></thead><tbody>` +
+    M.by_category.map((r) => `<tr><td>${esc(r.category)}</td><td><div class="sharebar"><span class="track"><span class="fill" style="width:${(r.share_pct / maxShare) * 100}%"></span></span><span style="font-family:var(--font-data);font-size:12.5px">${fmt(r.share_pct, 1)}%</span></div></td><td class="num">${fmt(r.tickets)}</td><td class="num">${fmt(r.avg_resolution_hours, 1)} h</td><td class="num">${pill(r.resolution_sla_pct)}</td><td class="num">${fmt(r.reopen_rate_pct, 1)}%</td></tr>`).join("") +
+    `</tbody>`;
+
+  // Hardware by site (worst first, as the query returns)
+  hbars($("hwSites"), M.hardware_by_site, {
+    value: (r) => r.resolution_sla_pct, label: (r) => r.site, target: 90,
+    tipText: (r) => `${r.site}: ${r.hardware_tickets} hardware tickets, average ${fmt(r.avg_resolution_hours, 1)} h to resolve`,
+  });
+
+  // Weekday
+  vbars($("weekday"), M.weekday_load, {
+    value: (r) => r.avg_per_day, label: (r) => r.weekday, max: 25, ticks: 5,
+    highlight: (r) => r.weekday === "Mon", valueText: (r) => fmt(r.avg_per_day, 1),
+    tipText: (r) => `${r.weekday}: ${fmt(r.avg_per_day, 1)} tickets a day on average, first response in ${fmt(r.avg_response_minutes)} min`,
+  });
+
+  // Priority table
+  $("priority").innerHTML =
+    `<thead><tr><th>Priority</th><th class="num">Tickets</th><th class="num">Respond in</th><th class="num">Met</th><th class="num">Resolve in</th><th class="num">Met</th></tr></thead><tbody>` +
+    M.sla_by_priority.map((r) => {
+      const name = r.priority.replace(" - ", " ");
+      const rt = r.response_target_min >= 60 ? `${r.response_target_min / 60} h` : `${r.response_target_min} min`;
+      return `<tr><td style="white-space:nowrap">${esc(name)}</td><td class="num">${fmt(r.tickets)}</td><td class="num">${rt}</td><td class="num">${pill(r.response_sla_pct)}</td><td class="num">${r.resolution_target_hours} h</td><td class="num">${pill(r.resolution_sla_pct)}</td></tr>`;
+    }).join("") + `</tbody>`;
+
+  // Repeat issues
+  $("repeat").innerHTML =
+    `<thead><tr><th>Category</th><th>Site</th><th class="num">Tickets</th><th class="num">Re-opened</th></tr></thead><tbody>` +
+    M.repeat_issues.map((r) => `<tr><td>${esc(r.category)}</td><td>${esc(r.site)}</td><td class="num">${fmt(r.tickets)}</td><td class="num">${r.reopened} (${fmt(r.reopen_rate_pct, 1)}%)</td></tr>`).join("") + `</tbody>`;
+
+  // Findings
+  const ss = M.self_service_opportunity[0];
+  const hw = M.hardware_by_site;
+  const worst = hw[0], best = hw[hw.length - 1];
+  const onb = M.by_category.find((r) => r.category === "Onboarding");
+  const mon = M.weekday_load.find((r) => r.weekday === "Mon"), fri = M.weekday_load.find((r) => r.weekday === "Fri");
+  const cs = Object.fromEntries(M.csat_vs_sla.map((r) => [r.outcome, r.avg_csat]));
+  const rep = M.repeat_issues[0];
+  const findings = [
+    [fmt(ss.share_pct, 0) + "%", "Introduce self-service password and MFA resets",
+      `<b>${fmt(ss.tickets)}</b> tickets were password resets, lockouts or MFA resets, and <b>${fmt(ss.phone_calls)}</b> of them came in by phone. A self-service reset tool (for example Microsoft Entra SSPR) would take most of these off the queue and free L1 time for harder problems.`],
+    [fmt(worst.resolution_sla_pct, 0) + "%", "Fix hardware turnaround at remote sites",
+      `Only <b>${fmt(worst.resolution_sla_pct, 1)}%</b> of hardware tickets in ${esc(worst.site)} and <b>${fmt(hw[1].resolution_sla_pct, 1)}%</b> in ${esc(hw[1].site)} met SLA, against <b>${fmt(best.resolution_sla_pct, 1)}%</b> in ${esc(best.site)}. Keeping a small stock of spare laptops and docks on site would let staff swap devices the same day instead of waiting for a visit.`],
+    [fmt(onb.resolution_sla_pct, 0) + "%", "Standardise new starter setup",
+      `Onboarding tickets took <b>${fmt(onb.avg_resolution_hours, 1)} h</b> on average and only <b>${fmt(onb.resolution_sla_pct, 1)}%</b> met the 24-hour target. Asking managers to log new starters five days ahead, plus a scripted account and device setup, would fix most of this.`],
+    [fmt(rep.reopen_rate_pct, 0) + "%", `Find the root cause of ${rep.category.toLowerCase()} faults in ${rep.site}`,
+      `<b>${rep.reopened}</b> of ${rep.tickets} ${rep.category.toLowerCase()} tickets in ${esc(rep.site)} were re-opened. Repeated quick fixes suggest an underlying fault, such as an ageing device or a driver issue, that should be handled as a problem record.`],
+    ["+" + fmt((mon.avg_per_day / fri.avg_per_day - 1) * 100, 0) + "%", "Roster to match Monday demand",
+      `Mondays average <b>${fmt(mon.avg_per_day, 1)}</b> tickets a day against <b>${fmt(fri.avg_per_day, 1)}</b> on Fridays, and first response is slowest on Monday (${fmt(mon.avg_response_minutes)} min). Moving one person's admin day off Monday would help. This matters because satisfaction drops from <b>${fmt(cs["SLA met"], 2)}</b> to <b>${fmt(cs["SLA breached"], 2)}</b> when a ticket misses its SLA.`],
+  ];
+  $("weekdaySub").textContent = `Monday carries about ${fmt((mon.avg_per_day / fri.avg_per_day - 1) * 100, 0)}% more tickets than Friday.`;
+  $("findings").innerHTML = findings.map(([m, h, p]) => `<div class="finding"><div class="metric">${m}</div><h3>${esc(h)}</h3><p>${p}</p></div>`).join("");
+
+  $("footer").innerHTML = `Built by Kritesh Baral · Python + SQLite + SQL, rendered with plain HTML and SVG · Data: <code>${esc(M._meta.generated_from)}</code> (synthetic, generated with a fixed seed).`;
+})();
+</script>
