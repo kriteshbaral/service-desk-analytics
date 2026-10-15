@@ -29,6 +29,8 @@ Or open `dashboard/index.html` locally in any browser (no server needed).
 
 The full write-up is in [`docs/findings.md`](docs/findings.md).
 
+**Follow-up project:** the top recommendation (self-service for password and common issues) is built in [Harbourline IT Help](https://github.com/kriteshbaral/helpdesk-assistant), an offline helpdesk assistant with automatic ticket triage. [Try it live](https://kriteshbaral.github.io/helpdesk-assistant/).
+
 ## How it works
 
 ```
